@@ -6,3 +6,5 @@ export const PORT = process.env.PORT;
 
 export const MONGO_DB_URI = process.env.MONGODB_URI;
 export const TOKENPASSWORD = process.env.TOKENPASSWORD;
+
+export const REDIRECT = process.env.REDIRECT;

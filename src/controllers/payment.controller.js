@@ -1,5 +1,5 @@
 import mercadopago from "mercadopago";
-import { MERCADOPAGO_API_KEY } from "../config.js";
+import { MERCADOPAGO_API_KEY, REDIRECT } from "../config.js";
 import Users from "../models/user.js";
 
 export const createOrder = async (req, res) => {
@@ -32,11 +32,11 @@ export const createOrder = async (req, res) => {
         NameUser: user.NameUser,
         email: user.Email,
       },
-      notification_url: "https://4030-186-125-141-191.ngrok.io/webhook",
+      notification_url: `${REDIRECT}/webhook`,
       back_urls: {
-        success: "https://localh1ost:3000/success",
-        pending: "https://local1host:3000/success/pending",
-        failure: "https://local1host:3000/success/failure",
+        success: `${REDIRECT}/success`,
+        pending: `${REDIRECT}/success/pending`,
+        failure: `${REDIRECT}/success/failure`,
       },
       external_reference: idUser,
     });
