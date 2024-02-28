@@ -1,6 +1,9 @@
 import mercadopago from "mercadopago";
 import { MERCADOPAGO_API_KEY, REDIRECT } from "../config.js";
 import Users from "../models/user.js";
+import PixelPurchases from "../models/Pixelpurchases.js";
+
+
 
 export const createOrder = async (req, res) => {
   const { idUser, amount } = req.body;
@@ -35,7 +38,6 @@ export const createOrder = async (req, res) => {
       notification_url: `${REDIRECT}/3006/webhook`,
       back_urls: {
         success: `${REDIRECT}/success`,
-        pending: `${REDIRECT}/success/pending`,
         failure: `${REDIRECT}/success/failure`,
       },
       external_reference: idUser,
@@ -59,12 +61,29 @@ export const receiveWebhook = async (req, res) => {
         const purchasedUnits = data.body.transaction_details.net_received_amount;
         user.Pixeles += purchasedUnits;
         await user.save();
+
+        const newPixelPurchase = new PixelPurchases({
+          NameUser: userData.NameUser,
+          idUser: userData._id,
+          Pixeles: 100,
+          Notification: false,
+          Creationdate: new Date(),
+        });
+
+        try {
+          await newPixelPurchase.save();
+          return res.status(202).json({
+            message: "payment made"
+          });
+        } catch (error) {
+          console.error("Error al crear PixelPurchases:", error);
+        }
       }
     } else {
       return res.status(500).json({ message: "Something goes wrong" });
     }
   } catch (error) {
-    console.log(error);
     return res.status(500).json({ message: "Something goes wrong" });
   }
 };
+
