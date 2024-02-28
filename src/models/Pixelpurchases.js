@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
-const PixelPurchases = new mongoose.Schema({
+const PixelPurchasesSchema = new mongoose.Schema({
     NameUser: {
         type: String,
-        require: true
+        required: true
     },
     idUser: {
         type: String,
@@ -14,13 +14,13 @@ const PixelPurchases = new mongoose.Schema({
         required: true
     },
     Notification: {
-        type: false,
+        type: Boolean,
         required: true
     },
     Creationdate: {
         type: Date,
         required: true
     },
-})
+});
 
-export default mongoose.model("Users", PixelPurchases, "Users")
+export default mongoose.model("PixelPurchases", PixelPurchasesSchema);

@@ -1,5 +1,5 @@
 import mercadopago from "mercadopago";
-import { MERCADOPAGO_API_KEY, REDIRECT } from "../config.js";
+import { MERCADOPAGO_API_KEY, MERCADOPAGO_API_WEBHOOK, REDIRECT } from "../config.js";
 import Users from "../models/user.js";
 import PixelPurchases from "../models/Pixelpurchases.js";
 
@@ -37,8 +37,8 @@ export const createOrder = async (req, res) => {
       },
       notification_url: `${REDIRECT}/3006/webhook`,
       back_urls: {
-        success: `${REDIRECT}/success`,
-        failure: `${REDIRECT}/success/failure`,
+        success: `${REDIRECT}`,
+        failure: `${REDIRECT}`,
       },
       external_reference: idUser,
     });
@@ -50,6 +50,12 @@ export const createOrder = async (req, res) => {
 };
 
 export const receiveWebhook = async (req, res) => {
+  const secret = req.headers.get("x-signature-id")
+  if (secret !== MERCADOPAGO_API_WEBHOOK) {
+    return res.status(401).json({
+      message: "x-signature-id"
+    });
+  }
   try {
     const payment = req.query;
     if (payment.type === "payment") {
@@ -63,9 +69,9 @@ export const receiveWebhook = async (req, res) => {
         await user.save();
 
         const newPixelPurchase = new PixelPurchases({
-          NameUser: userData.NameUser,
-          idUser: userData._id,
-          Pixeles: 100,
+          NameUser: user.NameUser,
+          idUser: user._id,
+          Pixeles: purchasedUnits,
           Notification: false,
           Creationdate: new Date(),
         });
