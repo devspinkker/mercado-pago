@@ -9,7 +9,6 @@ export const createOrder = async (req, res) => {
   const { idUser, amount } = req.body;
   const user = await Users.findById(idUser);
 
-  console.log(req.body);
   if (user == null) {
     return res.status(401).json({ error: 'token invalid or user not exist' });
   }
@@ -50,7 +49,7 @@ export const createOrder = async (req, res) => {
 };
 
 export const receiveWebhook = async (req, res) => {
-  const secret = req.headers.get("x-signature-id")
+  const secret = req.headers['x-signature-id'];
   if (secret !== MERCADOPAGO_API_WEBHOOK) {
     return res.status(401).json({
       message: "x-signature-id"
@@ -74,6 +73,8 @@ export const receiveWebhook = async (req, res) => {
           Pixeles: purchasedUnits,
           Notification: false,
           Creationdate: new Date(),
+          PaymentMethod: "mercado pago"
+
         });
 
         try {
@@ -90,6 +91,8 @@ export const receiveWebhook = async (req, res) => {
     }
   } catch (error) {
     return res.status(500).json({ message: "Something goes wrong" });
+
   }
 };
+
 

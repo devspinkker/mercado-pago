@@ -21,6 +21,10 @@ const PixelPurchasesSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    PaymentMethod: {
+        type: String,
+        required: true
+    },
 });
 
 export default mongoose.model("PixelPurchases", PixelPurchasesSchema);
