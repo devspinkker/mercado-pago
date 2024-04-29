@@ -2,6 +2,8 @@ import express from "express";
 import morgan from "morgan";
 import { PORT } from "./config.js";
 import paymentRoutes from "./routes/payment.routes.js";
+import BinancePay from "./routes/paymentsBinance.routes.js";
+
 import { connectDB } from "./db.js"
 import cors from "cors";
 connectDB()
@@ -18,7 +20,7 @@ app.use(
     })
 );
 app.use(paymentRoutes);
-
+app.use(BinancePay);
 const serverPort = PORT || 3000;
 app.listen(serverPort, () => {
     console.log(`server on port ${serverPort}`)
