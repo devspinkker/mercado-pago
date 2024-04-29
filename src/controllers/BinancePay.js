@@ -1,10 +1,10 @@
 import crypto from 'crypto';
 import axios from 'axios';
-import Users from './models/user.js';
-import Pixelpurchases from './models/Pixelpurchases.js';
+import Users from '../models/user.js';
+import Pixelpurchases from '../models/Pixelpurchases.js';
 
 const baseURL = 'https://bpay.binanceapi.com';
-import { KEYBINANCE, APISECRET, REDIRECT } from "./config.js";
+import { KEYBINANCE, APISECRET, REDIRECT } from "../config.js";
 
 
 function hash_signature(query_string) {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 
 
-import { cryptoBinancePay, receiveWebhookBinancePay } from "../controllers/BinancePay";
+import { cryptoBinancePay, receiveWebhookBinancePay } from "../controllers/BinancePay.js";
 
 
 const router = Router();
