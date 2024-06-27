@@ -3,7 +3,7 @@ import { createOrder, receiveWebhook } from "../controllers/payment.controller.j
 
 const router = Router();
 
-router.post("/", createOrder);
+router.post("/create-order", authauth, createOrder);
 router.post("/webhook", receiveWebhook);
 router.get("/success", (req, res) => res.send("Success"));
 
