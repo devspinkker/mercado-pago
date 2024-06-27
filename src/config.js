@@ -16,3 +16,4 @@ export const COINBASE_WEBHOOK_SECRET = process.env.COINBASE_WEBHOOK_SECRET;
 
 export const KEYBINANCE = process.env.KEYBINANCE;
 export const APISECRET = process.env.APISECRETBINANCE;
+export const PINKKERMAIL = process.env.PINKKERMAIL;

@@ -1,5 +1,5 @@
 import mercadopago from "mercadopago";
-import { MERCADOPAGO_API_KEY, MERCADOPAGO_API_WEBHOOK, REDIRECT } from "../config.js";
+import { MERCADOPAGO_API_KEY, MERCADOPAGO_API_WEBHOOK, REDIRECT, PINKKERMAIL } from "../config.js";
 import Users from "../models/user.js";
 import PixelPurchases from "../models/Pixelpurchases.js";
 
@@ -61,11 +61,15 @@ export const receiveWebhook = async (req, res) => {
       const data = await mercadopago.payment.findById(payment["data.id"]);
       const userId = data.body.external_reference;
       const user = await Users.findById(userId);
+      const userPinkker = await Users.findOne({ Email: PINKKERMAIL });
 
-      if (user && data.body.transaction_details.net_received_amount) {
+      if (user && userPinkker && data.body.transaction_details.net_received_amount) {
         const purchasedUnits = data.body.transaction_details.net_received_amount;
-        user.Pixeles += purchasedUnits;
+        const cincoPorCiento = purchasedUnits * 0.05;
+        userPinkker.Pixeles += cincoPorCiento;
+        user.Pixeles += (purchasedUnits - cincoPorCiento);
         await user.save();
+        await userPinkker.save();
 
         const newPixelPurchase = new PixelPurchases({
           NameUser: user.NameUser,
