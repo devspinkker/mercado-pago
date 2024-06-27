@@ -6,7 +6,8 @@ import PixelPurchases from "../models/Pixelpurchases.js";
 
 
 export const createOrder = async (req, res) => {
-  const { idUser, amount } = req.body;
+  const { amount } = req.body;
+  const { idUser } = req
   const user = await Users.findById(idUser);
 
   if (user == null) {
