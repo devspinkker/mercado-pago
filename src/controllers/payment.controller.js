@@ -89,6 +89,7 @@ export const receiveWebhook = async (req, res) => {
         };
 
         // Estructura básica del documento a insertar
+
         const setOnInsert = {
           timestamp: currentTime,
           weeks: {
