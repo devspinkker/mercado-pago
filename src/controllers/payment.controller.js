@@ -70,9 +70,11 @@ export const receiveWebhook = async (req, res) => {
         // Actualiza los Pixeles del usuario y del userPinkker
         userPinkker.Pixeles += cincoPorCiento;
         user.Pixeles += (purchasedUnits - cincoPorCiento);
+        console.log("here0");
 
         await user.save();
         await userPinkker.save();
+        console.log("here1");
 
         // Actualiza el PinkkerProfitPerMonth
         const currentTime = new Date();
@@ -109,9 +111,11 @@ export const receiveWebhook = async (req, res) => {
           },
           $setOnInsert: setOnInsert
         };
+        console.log("here2");
+        const s = await PinkkerProfitPerMonth.updateOne(filter, update, { upsert: true });
+        console.log(s);
 
-        await PinkkerProfitPerMonth.updateOne(filter, update, { upsert: true });
-
+        console.log("2222222");
 
         const newPixelPurchase = new PixelPurchases({
           NameUser: user.NameUser,
@@ -124,10 +128,15 @@ export const receiveWebhook = async (req, res) => {
 
         try {
           await newPixelPurchase.save();
+          console.log("todo ok?");
+
           return res.status(202).json({
             message: "payment made"
           });
         } catch (error) {
+          console.log("todo mal");
+          console.log(error);
+
           console.error("Error al crear PixelPurchases:", error);
         }
       }
