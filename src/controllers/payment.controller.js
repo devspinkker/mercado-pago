@@ -2,6 +2,8 @@ import mercadopago from "mercadopago";
 import { MERCADOPAGO_API_KEY, MERCADOPAGO_API_WEBHOOK, REDIRECT, PINKKERMAIL } from "../config.js";
 import Users from "../models/user.js";
 import PixelPurchases from "../models/Pixelpurchases.js";
+import PinkkerProfitPerMonth from "../models/PinkkerProfitPerMonth.js";
+
 
 
 
@@ -14,7 +16,8 @@ export const createOrder = async (req, res) => {
     return res.status(401).json({ error: 'token invalid or user not exist' });
   }
   const unitPrice = 1;
-  const quantity = amount * 1.25; // Incremento del 25% impu
+  const quantity = amount * 1.25; // Incremento del 25% impu 
+
   mercadopago.configure({
     access_token: MERCADOPAGO_API_KEY,
   });
@@ -70,18 +73,15 @@ export const receiveWebhook = async (req, res) => {
         // Actualiza los Pixeles del usuario y del userPinkker
         userPinkker.Pixeles += cincoPorCiento;
         user.Pixeles += (purchasedUnits - cincoPorCiento);
-        console.log("here0");
 
         await user.save();
         await userPinkker.save();
-        console.log("here1");
 
         // Actualiza el PinkkerProfitPerMonth
         const currentTime = new Date();
-        const currentMonth = currentTime.getMonth() + 1; // Mes en formato 1-12
+        const currentMonth = currentTime.getMonth() + 1;
         const currentYear = currentTime.getFullYear();
         const currentWeek = getWeekOfMonth(currentTime);
-
 
         const filter = {
           timestamp: {
@@ -90,32 +90,41 @@ export const receiveWebhook = async (req, res) => {
           }
         };
 
-        // Estructura básica del documento a insertar
-
         const setOnInsert = {
           timestamp: currentTime,
           weeks: {
             [currentWeek]: {
-              Impressions: 0,
-              Clicks: 0,
-              Pixels: cincoPorCiento // Inicializamos con el valor del 5% desde el inicio
+              impressions: 0,
+              clicks: 0,
+              pixeles: 0,
+              pinkkerPrime: 0,
+              communityBuy: 0,
+              PaidCommunities: 0,
+              CommissionsSuscripcion: 0,
+              CommissionsDonation: 0,
+
             }
           },
-          total: cincoPorCiento // Inicializamos el total con el valor del 5% desde el inicio
+          total: 0
         };
 
-        const update = {
-          $inc: {
-            [`weeks.${currentWeek}.pixels`]: cincoPorCiento,
-            total: cincoPorCiento
-          },
-          $setOnInsert: setOnInsert
-        };
-        console.log("here2");
-        const s = await PinkkerProfitPerMonth.updateOne(filter, update, { upsert: true });
-        console.log(s);
+        try {
+          await PinkkerProfitPerMonth.updateOne(filter, { $setOnInsert: setOnInsert }, { upsert: true });
 
-        console.log("2222222");
+          const update = {
+            $inc: {
+              [`weeks.${currentWeek}.pixeles`]: cincoPorCiento,
+              total: cincoPorCiento
+            }
+          };
+
+          const s = await PinkkerProfitPerMonth.updateOne(filter, update);
+          console.log(s);
+        } catch (error) {
+          console.log(error);
+        }
+
+
 
         const newPixelPurchase = new PixelPurchases({
           NameUser: user.NameUser,
@@ -128,15 +137,11 @@ export const receiveWebhook = async (req, res) => {
 
         try {
           await newPixelPurchase.save();
-          console.log("todo ok?");
 
           return res.status(202).json({
             message: "payment made"
           });
         } catch (error) {
-          console.log("todo mal");
-          console.log(error);
-
           console.error("Error al crear PixelPurchases:", error);
         }
       }
@@ -148,7 +153,6 @@ export const receiveWebhook = async (req, res) => {
   }
 };
 
-// Función para obtener la semana del mes
 function getWeekOfMonth(date) {
   const startOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
   const dayOfMonth = date.getDate();
