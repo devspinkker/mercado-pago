@@ -81,7 +81,7 @@ export const receiveWebhook = async (req, res) => {
         const currentTime = new Date();
         const currentMonth = currentTime.getMonth() + 1;
         const currentYear = currentTime.getFullYear();
-        const currentWeek = getWeekOfMonth(currentTime);
+        const currentDay = currentTime.getDate();
 
         const filter = {
           timestamp: {
@@ -92,8 +92,8 @@ export const receiveWebhook = async (req, res) => {
 
         const setOnInsert = {
           timestamp: currentTime,
-          weeks: {
-            [currentWeek]: {
+          days: {
+            [currentDay]: {
               impressions: 0,
               clicks: 0,
               pixeles: 0,
@@ -102,7 +102,7 @@ export const receiveWebhook = async (req, res) => {
               PaidCommunities: 0,
               CommissionsSuscripcion: 0,
               CommissionsDonation: 0,
-
+              CommissionsCommunity: 0,
             }
           },
           total: 0
@@ -113,7 +113,7 @@ export const receiveWebhook = async (req, res) => {
 
           const update = {
             $inc: {
-              [`weeks.${currentWeek}.pixeles`]: cincoPorCiento,
+              [`days.${currentDay}.pixeles`]: cincoPorCiento,
               total: cincoPorCiento
             }
           };

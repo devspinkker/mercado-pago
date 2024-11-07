@@ -2,3 +2,4 @@ ngrok.exe
 .env
 node_modules
 ./env
+.env
