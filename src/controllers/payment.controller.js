@@ -64,18 +64,15 @@ export const receiveWebhook = async (req, res) => {
       const data = await mercadopago.payment.findById(payment["data.id"]);
       const userId = data.body.external_reference;
       const user = await Users.findById(userId);
-      const userPinkker = await Users.findOne({ Email: PINKKERMAIL });
 
-      if (user && userPinkker && data.body.transaction_details.net_received_amount) {
+      if (user && data.body.transaction_details.net_received_amount) {
         const purchasedUnits = data.body.transaction_details.net_received_amount;
         const cincoPorCiento = purchasedUnits * 0.05;
 
         // Actualiza los Pixeles del usuario y del userPinkker
-        userPinkker.Pixeles += cincoPorCiento;
         user.Pixeles += (purchasedUnits - cincoPorCiento);
 
         await user.save();
-        await userPinkker.save();
 
         // Actualiza el PinkkerProfitPerMonth
         const currentTime = new Date();
@@ -136,7 +133,8 @@ export const receiveWebhook = async (req, res) => {
         });
 
         try {
-          await newPixelPurchase.save();
+          const res = await newPixelPurchase.save();
+          console.log(res);
 
           return res.status(202).json({
             message: "payment made"
