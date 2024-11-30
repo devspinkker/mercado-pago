@@ -86,41 +86,31 @@ export const receiveWebhook = async (req, res) => {
             $lt: new Date(currentYear, currentMonth, 1),
           }
         };
-
-        const setOnInsert = {
-          timestamp: currentTime,
-          days: {
-            [currentDay]: {
-              impressions: 0,
-              clicks: 0,
-              pixeles: 0,
-              pinkkerPrime: 0,
-              communityBuy: 0,
-              PaidCommunities: 0,
-              CommissionsSuscripcion: 0,
-              CommissionsDonation: 0,
-              CommissionsCommunity: 0,
-            }
+        const initialize = {
+          $set: {
+            [`days.${currentDay}.pixeles`]: 0
           },
-          total: 0
+          $setOnInsert: {
+            timestamp: currentTime,
+            total: 0
+          }
+        };
+
+        const increment = {
+          $inc: {
+            [`days.${currentDay}.pixeles`]: cincoPorCiento,
+            total: cincoPorCiento,
+          }
         };
 
         try {
-          await PinkkerProfitPerMonth.updateOne(filter, { $setOnInsert: setOnInsert }, { upsert: true });
+          await PinkkerProfitPerMonth.updateOne(filter, initialize, { upsert: true });
 
-          const update = {
-            $inc: {
-              [`days.${currentDay}.pixeles`]: cincoPorCiento,
-              total: cincoPorCiento
-            }
-          };
-
-          const s = await PinkkerProfitPerMonth.updateOne(filter, update);
+          const s = await PinkkerProfitPerMonth.updateOne(filter, increment);
           console.log(s);
         } catch (error) {
-          console.log(error);
+          console.error("Error al actualizar PinkkerProfitPerMonth:", error);
         }
-
 
 
         const newPixelPurchase = new PixelPurchases({
@@ -133,8 +123,7 @@ export const receiveWebhook = async (req, res) => {
         });
 
         try {
-          const res = await newPixelPurchase.save();
-          console.log(res);
+          await newPixelPurchase.save();
 
           return res.status(202).json({
             message: "payment made"

@@ -10,7 +10,7 @@ const PinkkerProfitPerMonthSchema = new mongoose.Schema({
         required: true,
         default: 0.0
     },
-    weeks: {
+    days: {
         type: Map,
         default: {}
     }
