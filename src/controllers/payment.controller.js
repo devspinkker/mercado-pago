@@ -76,9 +76,11 @@ export const receiveWebhook = async (req, res) => {
 
         // Actualiza el PinkkerProfitPerMonth
         const currentTime = new Date();
-        const currentMonth = currentTime.getMonth() + 1;
         const currentYear = currentTime.getFullYear();
-        const currentDay = currentTime.getDate();
+        const currentMonth = (currentTime.getMonth() + 1).toString().padStart(2, "0");
+        const currentDay = currentTime.getDate().toString().padStart(2, "0");
+
+        const currentDateKey = `${currentYear}-${currentMonth}-${currentDay}`;
 
         const filter = {
           timestamp: {
@@ -88,26 +90,26 @@ export const receiveWebhook = async (req, res) => {
         };
         const initialize = {
           $set: {
-            [`days.${currentDay}.pixeles`]: 0
+            [`days.${currentDateKey}.pixeles`]: 0, // Inicializar el día con 0 pixeles
           },
           $setOnInsert: {
-            timestamp: currentTime,
-            total: 0
-          }
+            timestamp: currentTime, // Establece el timestamp al crear un nuevo documento
+            total: 0, // Total inicializado en 0
+          },
         };
 
         const increment = {
           $inc: {
-            [`days.${currentDay}.pixeles`]: cincoPorCiento,
-            total: cincoPorCiento,
-          }
+            [`days.${currentDateKey}.pixeles`]: cincoPorCiento, // Incrementar pixeles
+            total: cincoPorCiento, // Incrementar el total general
+          },
         };
 
         try {
           await PinkkerProfitPerMonth.updateOne(filter, initialize, { upsert: true });
 
-          const s = await PinkkerProfitPerMonth.updateOne(filter, increment);
-          console.log(s);
+          const PinkkerProfitPerMonthRes = await PinkkerProfitPerMonth.updateOne(filter, increment);
+          console.log(PinkkerProfitPerMonthRes);
         } catch (error) {
           console.error("Error al actualizar PinkkerProfitPerMonth:", error);
         }
