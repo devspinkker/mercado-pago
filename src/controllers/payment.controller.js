@@ -70,8 +70,9 @@ export const receiveWebhook = async (req, res) => {
         const cincoPorCiento = purchasedUnits * 0.05;
 
         // Actualiza los Pixeles del usuario y del userPinkker
-        user.Pixeles += (purchasedUnits - cincoPorCiento);
-
+        let result = purchasedUnits - cincoPorCiento;
+        result = parseFloat(result.toFixed(3));
+        user.Pixeles += result
         await user.save();
 
         // Actualiza el PinkkerProfitPerMonth
